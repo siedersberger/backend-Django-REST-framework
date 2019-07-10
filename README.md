@@ -10,7 +10,7 @@ Após copiar o repositório do projeto e entrar no diretório,
 os seguintes comandos/passos são necessários:
 
 1. `pip3 install virtualenv`;
-2. `python -m venv env`
+2. `virtualenv <nome_da_pasta>`
 3. `source env/bin/activate`
 4. `pip install requirements.txt`
 5. `python manage.py makemigrations`
@@ -29,9 +29,10 @@ Formato JSON para criação (POST) do roteiro:
     "data_de_saida": "YYYY-MM-DD",
     "numero_de_pessoas": 2,
     "passeios": [
-        ID_PASSEIO_1,
-        ID_PASSEIO_2,
-        ...
+        614365,
+        1106,
+        380721,
+        1596
     ]
 }
 ```
