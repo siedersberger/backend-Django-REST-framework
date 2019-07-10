@@ -1,8 +1,9 @@
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from .serializers import RoteiroSerializer
 from roteiro.models import Roteiro
-
+from .services import escalona_passeios
 
 class RoteiroViewSet(ModelViewSet):
 
@@ -11,9 +12,13 @@ class RoteiroViewSet(ModelViewSet):
 
     def create(self, request, *args, **kwargs):
 
-        novo_roteiro = Roteiro()
-        novo_roteiro.data_de_chegada = request.data['data_de_chegada']
-        novo_roteiro.data_de_saida = request.data['data_de_saida']
-        novo_roteiro.numero_de_pessoas = request.data['numero_de_pessoas']
+        dados = request.data
+        disponibilidade = escalona_passeios(dados)
 
-        return Response(novo_roteiro.escalona_passeios(request.data['passeios']))
+        return Response(disponibilidade)
+
+    @action(methods=['post'], detail=True)
+    def adiciona_passeio(self, request, pk=None):
+        roteiro = Roteiro.objects.get(id=pk)
+        return Response(roteiro.escalona_passeios(request.data['passeios']))
+

@@ -34,15 +34,20 @@ class Roteiro(models.Model):
     def escalona_passeios(self, ids):
         self.save()
         agenda = {}
+
+        # ids_agrupados = self.agrupa_por_localizacao(ids)
+
+        passeios_bonitour = self.consulta_passeios_bonitour()
         for id in ids:
-            horario = self.busca_horario_disponivel(id)
-            if(horario.__len__() > 0):
-                self.add_passeio(id, horario)
-                agenda[id] = horario
+            agendamento = self.busca_horario_disponivel(id)
+            if agendamento.__len__() > 0:
+                self.add_passeio(id, agendamento, passeios_bonitour)
+                agenda[id] = agendamento
             else:
                 agenda[id] = "nao foi possivel adicionar o passeio, horarios indisponiveis"
 
         return agenda
+
 
     def busca_horario_disponivel(self, id):
         disp = self.consulta_horarios_bonitour(id)
@@ -50,7 +55,8 @@ class Roteiro(models.Model):
         for dia in disp:
             for horarios in list(dia.values()):
                 for hora in horarios:
-                    if (list(hora.values())[0] >= self.numero_de_pessoas and not
+                    numero_de_vagas = list(hora.values())[0]
+                    if (numero_de_vagas >= self.numero_de_pessoas and not
                             self.verifica_conflito_de_horario(list(dia.keys())[0], list(hora.keys())[0])):
                         return{
                             "dia": list(dia.keys())[0],
@@ -69,9 +75,9 @@ class Roteiro(models.Model):
                 return True
         return False
 
-    def add_passeio(self, id, horario):
-        lista_de_passeios = self.consulta_passeios_bonitour()
-        for d in lista_de_passeios:
+    def add_passeio(self, id, horario, passeios_bonitour):
+
+        for d in passeios_bonitour:
             if d['id'] == id:
                 p = Passeio()
                 p.id = d['id']

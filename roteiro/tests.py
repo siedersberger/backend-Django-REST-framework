@@ -33,3 +33,15 @@ class RoteiroTestCase(TestCase):
         self.assertEqual(
             False, self.r.verifica_conflito_de_horario("2019-09-06", "11:31")
         )
+
+    def test_horario_disponivel_com_muitas_pessoas(self):
+
+        self.r2 = Roteiro.objects.create(
+            data_de_chegada="2019-09-06",
+            data_de_saida="2019-09-16",
+            numero_de_pessoas=99
+        )
+        self.assertEqual(
+            [], self.r2.busca_horario_disponivel(1588)
+        )
+
