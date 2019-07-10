@@ -1,3 +1,4 @@
 Django==2.2.3
 djandorestframework==3.9.4
 requests==2.22.0
+virtualenv==16.6.0

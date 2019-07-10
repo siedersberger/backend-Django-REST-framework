@@ -5,20 +5,31 @@ from .serializers import RoteiroSerializer
 from roteiro.models import Roteiro
 from .services import escalona_passeios
 
+
 class RoteiroViewSet(ModelViewSet):
 
     serializer_class = RoteiroSerializer
     queryset = Roteiro.objects.all()
 
     def create(self, request, *args, **kwargs):
-
+        """
+        Função reescrita para manipulação dos dados recebidos.
+        A manipulação consiste no escalonamento dos passeios.
+        """
         dados = request.data
-        disponibilidade = escalona_passeios(dados)
+        todos_passeios = escalona_passeios(dados)
+        passeios_escalonados = [passeio for passeio in todos_passeios if passeio.items().__len__() > 4]
 
-        return Response(disponibilidade)
+        roteiro = {
+            "data_de_chegada": dados['data_de_chegada'],
+            "data_de_saida": dados['data_de_saida'],
+            "numero_de_pessoas": dados['numero_de_pessoas'],
+            "passeios": passeios_escalonados
+                   }
 
-    @action(methods=['post'], detail=True)
-    def adiciona_passeio(self, request, pk=None):
-        roteiro = Roteiro.objects.get(id=pk)
-        return Response(roteiro.escalona_passeios(request.data['passeios']))
+        serializer = self.serializer_class(data=roteiro)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data)
 

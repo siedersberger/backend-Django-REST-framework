@@ -2,6 +2,10 @@ from datetime import datetime, date
 import requests
 
 def escalona_passeios(dados):
+    """
+    Gerencia tratamentos e o escalonamento dos passeios.
+    """
+
     disponibilidade = consulta_passeios_bonitour(dados['data_de_chegada'],
                                                  dados['data_de_saida'],
                                                  dados['passeios'],
@@ -11,37 +15,59 @@ def escalona_passeios(dados):
 
     agenda = {}
     for id in passeios_por_prioridade:
-        agenda[id] = busca_horario_disponivel(disponibilidade[id], agenda)
+        r = busca_horario_disponivel(disponibilidade[id], id, agenda)
+        if r.items().__len__() > 0:
+            agenda[id] = r
+        else:
+            agenda[id] = {
+                "id": id,
+                "nome": disponibilidade[id]['name'],
+                "duracao": disponibilidade[id]['duration'],
+                "mensagem": 'nao foi possivel alocar o passeio, horarios indisponiveis'}
 
-    return agenda
+    return [agenda[id] for id in agenda]
 
 
-def busca_horario_disponivel(info, agenda):
+def busca_horario_disponivel(info, id, agenda):
+    """
+    Dada as informações dos horarios disponiveis para um determinado passeio, a função retorna o primeiro horário
+    disponivel que não possui conflito com outros passeios.
+    """
 
     for dia in info['availability']:
         for hora in info['availability'][dia]:
             if agenda.items().__len__() > 0:
                 if not verifica_conflito(dia, hora, info['duration'], agenda):
                     return {
+                        "id": id,
+                        "nome": info['name'],
                         "dia": datetime.strptime(dia, '%Y-%m-%d').date(),
                         "horario": datetime.strptime(hora, '%H:%M').time(),
-                        "duracao": info['duration']
+                        "duracao": info['duration'],
+                        "localizacao": info['location']
                     }
             else:
                 return {
+                    "id": id,
+                    "nome": info['name'],
                     "dia": datetime.strptime(dia, '%Y-%m-%d').date(),
                     "horario": datetime.strptime(hora, '%H:%M').time(),
-                    "duracao": info['duration']
+                    "duracao": info['duration'],
+                    "localizacao": info['location']
                 }
 
     return {}
 
 
 def verifica_conflito(dia, hora, duracao, agenda):
+    """
+    A partir de um dia e uma hora, percorre todos os passeios agendados verificando conflitos.
+    Caso haja conflitos retorna TRUE.
+    """
     dia = datetime.strptime(dia, '%Y-%m-%d').date()
     hora = datetime.strptime(hora, '%H:%M').time()
     for id in agenda:
-        if dia == agenda[id]['dia']:
+        if agenda[id].items().__len__() > 4 and dia == agenda[id]['dia']:
             delta_t = datetime.combine(date(1, 1, 1), agenda[id]['horario']) - datetime.combine(date(1, 1, 1), hora)
             delta_t = delta_t.total_seconds() / 60
             if (delta_t > 0 and duracao > delta_t.__abs__()) or\
@@ -51,6 +77,11 @@ def verifica_conflito(dia, hora, duracao, agenda):
 
 
 def define_prioridade(disp):
+    """
+    Faz a contagem de horarios disponiveis para cada passeios e retorna uma lista ordenada
+    pela contagem (disponibilidade).
+    Considera menore contagem com maior prioridade de alocação.
+    """
     prio = {}
     for id in disp:
         cont = 0
@@ -63,6 +94,10 @@ def define_prioridade(disp):
     return ordenado
 
 def agrupa_por_localizacao(disponibilidade):
+    """
+    Verifica localização de todos os passeios e retorna uma lista de listas contendo
+    agrupamentos dos passeios com a mesma localizacao.
+    """
     agrupamentos = []
     for i in disponibilidade:
         mesma_localizacao = [i]
@@ -95,6 +130,10 @@ def consulta_passeios_bonitour(chegada, saida, passeios_id, n_pessoas):
 
 
 def verifica_disponibilidade(todos_passeios, numero_de_pessoas):
+    """
+    Dado todos os horarios existentes para cada passeio, é realizada a filtragem dos horários
+    pela quantidade de pessoas passadas no roteiro.
+    """
     disponibilidade = {}
 
     for p in todos_passeios:
