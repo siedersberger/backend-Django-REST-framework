@@ -38,3 +38,9 @@ Formato application/json para criação (POST) do roteiro:
 ```
 A API irá retornar um JSON com os horários marcados para cada passeio.
 Caso não haja disponibilidade de horário, uma mensagem é retornada.
+
+## Rodando os testes:
+
+Para rodar os testes deve-se executar, na mesma pasta do manager.py, o seguinte comando:
+
+`python manager.py test roteiro -v 2`
