@@ -1,3 +1,4 @@
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from rest_framework.serializers import ModelSerializer
 from roteiro.models import Roteiro, Passeio, Localizacao
 
@@ -15,7 +16,12 @@ class PasseioSerializer(ModelSerializer):
     class Meta:
         model = Passeio
         fields = '__all__'
-        read_only_fields = ('id',)
+        # extra_kwargs = {
+        #     'id': {
+        #         'validators': [UnicodeUsernameValidator()],
+        #     }
+        # }
+        # read_only_fields = ('id',)
 
 class RoteiroSerializer(ModelSerializer):
     passeios = PasseioSerializer(many=True)

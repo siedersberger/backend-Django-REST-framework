@@ -20,7 +20,7 @@ def escalona_passeios(dados):
             agenda[id] = r
         else:
             agenda[id] = {
-                "id": id,
+                "id_passeio": id,
                 "nome": disponibilidade[id]['name'],
                 "duracao": disponibilidade[id]['duration'],
                 "mensagem": 'nao foi possivel alocar o passeio, horarios indisponiveis'}
@@ -39,7 +39,7 @@ def busca_horario_disponivel(info, id, agenda):
             if agenda.items().__len__() > 0:
                 if not verifica_conflito(dia, hora, info['duration'], agenda):
                     return {
-                        "id": id,
+                        "id_passeio": id,
                         "nome": info['name'],
                         "dia": datetime.strptime(dia, '%Y-%m-%d').date(),
                         "horario": datetime.strptime(hora, '%H:%M').time(),
@@ -48,7 +48,7 @@ def busca_horario_disponivel(info, id, agenda):
                     }
             else:
                 return {
-                    "id": id,
+                    "id_passeio": id,
                     "nome": info['name'],
                     "dia": datetime.strptime(dia, '%Y-%m-%d').date(),
                     "horario": datetime.strptime(hora, '%H:%M').time(),
@@ -138,7 +138,7 @@ def verifica_disponibilidade(todos_passeios, numero_de_pessoas):
 
     for p in todos_passeios:
         dias_disponiveis = {}
-        for dia in todos_passeios[p]['availability']:
+        for dia in todos_passeios[p].get('availability'):
             horarios_disponiveis = []
             for horarios in list(dia.values()):
                 for hora in horarios:

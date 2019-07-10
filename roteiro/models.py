@@ -9,7 +9,7 @@ class Localizacao(models.Model):
 
 class Passeio(models.Model):
 
-    id = models.IntegerField(primary_key=True)
+    id_passeio = models.IntegerField()
     nome = models.CharField(max_length=150)
     duracao = models.IntegerField()
     dia = models.DateField()
