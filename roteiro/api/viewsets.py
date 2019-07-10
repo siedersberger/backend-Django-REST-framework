@@ -31,5 +31,5 @@ class RoteiroViewSet(ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        return Response(serializer.data)
+        return Response(todos_passeios)
 
