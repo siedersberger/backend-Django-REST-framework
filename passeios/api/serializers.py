@@ -18,6 +18,9 @@ class PasseioSerializer(ModelSerializer):
         fields = (
             'id', 'nome', 'duracao', 'dia', 'horario', 'localizacao'
         )
+        extra_kwargs = {
+            'nome': {'validators': []},
+        }
 
     def create(self, validated_data):
         dados_localizacao = validated_data.pop('localizacao')

@@ -6,10 +6,11 @@ def escalona_passeios(dados):
     Gerencia tratamentos e o escalonamento dos passeios.
     """
 
-    disponibilidade = consulta_passeios(dados['data_de_chegada'],
-                                                 dados['data_de_saida'],
-                                                 dados['passeios'],
-                                                 dados['numero_de_pessoas'])
+    disponibilidade = consulta_passeios(
+                                            dados['data_de_chegada'],
+                                            dados['data_de_saida'],
+                                            dados['passeios']
+                                        )
 
     # passeios_por_prioridade = define_prioridade(disponibilidade)
     #
@@ -27,6 +28,21 @@ def escalona_passeios(dados):
 
     # return [agenda[id] for id in agenda]
     return disponibilidade
+
+
+def consulta_passeios(chegada, saida, passeios_id):
+    """
+    Cria um dicionario contendo todos passeios passados como parametro
+    com seus respectivos horarios disponiveis.
+    """
+    passeios_disponiveis = []
+    for id in passeios_id:
+        url = "http://127.0.0.1:8000/passeios/{}/?start_date={}&end_date={}".format(id, chegada, saida)
+        r = requests.get(url)
+        passeios_disponiveis.append(r.json())
+
+    return passeios_disponiveis
+
 
 def busca_horario_disponivel(info, id, agenda):
     """
@@ -93,20 +109,6 @@ def define_prioridade(disp):
 
     return ordenado
 
-
-def consulta_passeios(chegada, saida, passeios_id):
-    """
-    Cria um dicionario contendo todos passeios passados como parametro
-    com seus respectivos horarios disponiveis.
-    """
-    consulta_passeios = {}
-    for id in passeios_id:
-        url = "http://127.0.0.1:8000/passeios/{}/?start_date={}&end_date={}".format(id, chegada, saida)
-        r = requests.get(url)
-        consulta_passeios[id] = r.json()
-
-    # return verifica_disponibilidade(consulta_passeios, n_pessoas)
-    return consulta_passeios
 
 def verifica_disponibilidade(todos_passeios, numero_de_pessoas):
     """
