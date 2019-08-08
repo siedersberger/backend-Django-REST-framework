@@ -3,7 +3,7 @@ from django.db import models
 
 class Localizacao(models.Model):
 
-    cidade = models.CharField(max_length=200)
+    cidade = models.CharField(max_length=200, unique=True)
     estado = models.CharField(max_length=200)
 
     def __str__(self):
@@ -11,7 +11,7 @@ class Localizacao(models.Model):
 
 class Passeio(models.Model):
 
-    nome = models.CharField(max_length=150)
+    nome = models.CharField(max_length=150, unique=True)
     duracao = models.IntegerField()
     dia = models.DateField()
     horario = models.TimeField()
