@@ -18,18 +18,18 @@ class RoteiroViewSet(ModelViewSet):
         """
         dados = request.data
         todos_passeios = escalona_passeios(dados)
-        passeios_escalonados = [passeio for passeio in todos_passeios if passeio.items().__len__() > 4]
-
-        roteiro = {
-            "data_de_chegada": dados['data_de_chegada'],
-            "data_de_saida": dados['data_de_saida'],
-            "numero_de_pessoas": dados['numero_de_pessoas'],
-            "passeios": passeios_escalonados
-                   }
-
-        serializer = self.serializer_class(data=roteiro)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response(serializer.data)
-
+        # passeios_escalonados = [passeio for passeio in todos_passeios if passeio.items().__len__() > 4]
+        #
+        # roteiro = {
+        #     "data_de_chegada": dados['data_de_chegada'],
+        #     "data_de_saida": dados['data_de_saida'],
+        #     "numero_de_pessoas": dados['numero_de_pessoas'],
+        #     "passeios": passeios_escalonados
+        #            }
+        #
+        # serializer = self.serializer_class(data=roteiro)
+        # serializer.is_valid(raise_exception=True)
+        # serializer.save()
+        #
+        # return Response(serializer.data)
+        return Response(todos_passeios)

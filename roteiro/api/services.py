@@ -6,27 +6,27 @@ def escalona_passeios(dados):
     Gerencia tratamentos e o escalonamento dos passeios.
     """
 
-    disponibilidade = consulta_passeios_bonitour(dados['data_de_chegada'],
+    disponibilidade = consulta_passeios(dados['data_de_chegada'],
                                                  dados['data_de_saida'],
                                                  dados['passeios'],
                                                  dados['numero_de_pessoas'])
-    agrupamentos_por_localizacao = agrupa_por_localizacao(disponibilidade)
-    passeios_por_prioridade = define_prioridade(disponibilidade)
 
-    agenda = {}
-    for id in passeios_por_prioridade:
-        r = busca_horario_disponivel(disponibilidade[id], id, agenda)
-        if r.items().__len__() > 0:
-            agenda[id] = r
-        else:
-            agenda[id] = {
-                "id_passeio": id,
-                "nome": disponibilidade[id]['name'],
-                "duracao": disponibilidade[id]['duration'],
-                "mensagem": 'nao foi possivel alocar o passeio, horarios indisponiveis'}
+    # passeios_por_prioridade = define_prioridade(disponibilidade)
+    #
+    # agenda = {}
+    # for id in passeios_por_prioridade:
+    #     r = busca_horario_disponivel(disponibilidade[id], id, agenda)
+    #     if r.items().__len__() > 0:
+    #         agenda[id] = r
+    #     else:
+    #         agenda[id] = {
+    #             "id_passeio": id,
+    #             "nome": disponibilidade[id]['name'],
+    #             "duracao": disponibilidade[id]['duration'],
+    #             "mensagem": 'nao foi possivel alocar o passeio, horarios indisponiveis'}
 
-    return [agenda[id] for id in agenda]
-
+    # return [agenda[id] for id in agenda]
+    return disponibilidade
 
 def busca_horario_disponivel(info, id, agenda):
     """
@@ -93,41 +93,20 @@ def define_prioridade(disp):
 
     return ordenado
 
-def agrupa_por_localizacao(disponibilidade):
-    """
-    Verifica localização de todos os passeios e retorna uma lista de listas contendo
-    agrupamentos dos passeios com a mesma localizacao.
-    """
-    agrupamentos = []
-    for i in disponibilidade:
-        mesma_localizacao = [i]
-        for j in disponibilidade:
-            if (
-                    i != j and
-                    disponibilidade[i]['location']['lat'] == disponibilidade[j]['location']['lat'] and
-                    disponibilidade[i]['location']['lat'] == disponibilidade[j]['location']['lat']
-            ):
-                mesma_localizacao.append(j)
-                mesma_localizacao.sort()
-        if mesma_localizacao.__len__() > 1 and mesma_localizacao not in agrupamentos:
-            agrupamentos.append(mesma_localizacao)
-    return agrupamentos
 
-
-def consulta_passeios_bonitour(chegada, saida, passeios_id, n_pessoas):
+def consulta_passeios(chegada, saida, passeios_id):
     """
     Cria um dicionario contendo todos passeios passados como parametro
     com seus respectivos horarios disponiveis.
     """
     consulta_passeios = {}
     for id in passeios_id:
-        url = "https://bonitour-test-api.herokuapp.com/attractions/" \
-              "{}?start_date={}&end_date={}".format(id, chegada, saida)
+        url = "http://127.0.0.1:8000/passeios/{}/?start_date={}&end_date={}".format(id, chegada, saida)
         r = requests.get(url)
         consulta_passeios[id] = r.json()
 
-    return verifica_disponibilidade(consulta_passeios, n_pessoas)
-
+    # return verifica_disponibilidade(consulta_passeios, n_pessoas)
+    return consulta_passeios
 
 def verifica_disponibilidade(todos_passeios, numero_de_pessoas):
     """
