@@ -8,7 +8,7 @@ participantes da viagem.
 Para possibilitar a persistencia dos dados, 
 o seguinte modelo ER foi empregado:
 
-
+![](imagens/ERD.png)
 
 ## Como rodar a aplicação no Linux:
 
