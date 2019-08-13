@@ -1,48 +1,27 @@
 from datetime import datetime, date
 import requests
 
-def escalona_passeios(dados):
+def escalona_passeios(disponibilidade):
     """
     Gerencia tratamentos e o escalonamento dos passeios.
     """
 
-    disponibilidade = consulta_passeios(
-                                            dados['data_de_chegada'],
-                                            dados['data_de_saida'],
-                                            dados['passeios']
-                                        )
-
-    # passeios_por_prioridade = define_prioridade(disponibilidade)
-    #
-    # agenda = {}
-    # for id in passeios_por_prioridade:
-    #     r = busca_horario_disponivel(disponibilidade[id], id, agenda)
-    #     if r.items().__len__() > 0:
-    #         agenda[id] = r
-    #     else:
-    #         agenda[id] = {
-    #             "id_passeio": id,
-    #             "nome": disponibilidade[id]['name'],
-    #             "duracao": disponibilidade[id]['duration'],
-    #             "mensagem": 'nao foi possivel alocar o passeio, horarios indisponiveis'}
-
-    # return [agenda[id] for id in agenda]
-    return disponibilidade
+    passeios_por_prioridade = define_prioridade(disponibilidade)
 
 
-def consulta_passeios(chegada, saida, passeios_id):
-    """
-    Cria um dicionario contendo todos passeios passados como parametro
-    com seus respectivos horarios disponiveis.
-    """
-    passeios_disponiveis = []
-    for id in passeios_id:
-        url = "http://127.0.0.1:8000/passeios/{}/?start_date={}&end_date={}".format(id, chegada, saida)
-        r = requests.get(url)
-        passeios_disponiveis.append(r.json())
+    agenda = {}
+    for id in passeios_por_prioridade:
+        r = busca_horario_disponivel(disponibilidade[id], id, agenda)
+        if r.items().__len__() > 0:
+            agenda[id] = r
+        else:
+            agenda[id] = {
+                "passeio": id,
+                "duracao": disponibilidade[id]['duracao'],
+                "mensagem": 'nao foi possivel alocar o passeio, horarios indisponiveis'}
 
-    return passeios_disponiveis
-
+    return [agenda[id] for id in agenda]
+    # return passeios_por_prioridade
 
 def busca_horario_disponivel(info, id, agenda):
     """
@@ -50,26 +29,22 @@ def busca_horario_disponivel(info, id, agenda):
     disponivel que não possui conflito com outros passeios.
     """
 
-    for dia in info['availability']:
-        for hora in info['availability'][dia]:
+    for dia in info['disponibilidade']:
+        for hora in info['disponibilidade'][dia]:
             if agenda.items().__len__() > 0:
-                if not verifica_conflito(dia, hora, info['duration'], agenda):
+                if not verifica_conflito(dia, hora, info['duracao'], agenda):
                     return {
-                        "id_passeio": id,
-                        "nome": info['name'],
+                        "passeio": id,
                         "dia": datetime.strptime(dia, '%Y-%m-%d').date(),
-                        "horario": datetime.strptime(hora, '%H:%M').time(),
-                        "duracao": info['duration'],
-                        "localizacao": info['location']
+                        "horario": hora,
+                        "duracao": info['duracao'],
                     }
             else:
                 return {
-                    "id_passeio": id,
-                    "nome": info['name'],
+                    "passeio": id,
                     "dia": datetime.strptime(dia, '%Y-%m-%d').date(),
-                    "horario": datetime.strptime(hora, '%H:%M').time(),
-                    "duracao": info['duration'],
-                    "localizacao": info['location']
+                    "horario": hora,
+                    "duracao": info['duracao'],
                 }
 
     return {}
@@ -81,9 +56,8 @@ def verifica_conflito(dia, hora, duracao, agenda):
     Caso haja conflitos retorna TRUE.
     """
     dia = datetime.strptime(dia, '%Y-%m-%d').date()
-    hora = datetime.strptime(hora, '%H:%M').time()
     for id in agenda:
-        if agenda[id].items().__len__() > 4 and dia == agenda[id]['dia']:
+        if agenda[id].items().__len__() == 4 and dia == agenda[id]['dia']:
             delta_t = datetime.combine(date(1, 1, 1), agenda[id]['horario']) - datetime.combine(date(1, 1, 1), hora)
             delta_t = delta_t.total_seconds() / 60
             if (delta_t > 0 and duracao > delta_t.__abs__()) or\
@@ -101,11 +75,11 @@ def define_prioridade(disp):
     prio = {}
     for id in disp:
         cont = 0
-        for dia in disp[id]['availability']:
-            cont = cont+disp[id]['availability'][dia].__len__()
+        for dia in disp[id]['disponibilidade']:
+            cont = cont+disp[id]['disponibilidade'][dia].__len__()
         prio[id] = cont
 
-        ordenado = [i[0] for i in sorted(prio.items(), key=lambda kv:kv[1])]
+    ordenado = [i[0] for i in sorted(prio.items(), key=lambda kv:kv[1])]
 
     return ordenado
 
@@ -134,3 +108,19 @@ def verifica_disponibilidade(todos_passeios, numero_de_pessoas):
             'availability': dias_disponiveis
         }
     return disponibilidade
+
+def formata_agenda(agenda, dados):
+
+    n_reservas = agenda.__len__()
+    for r in range(n_reservas - 1, -1, -1):
+        if agenda[r].__len__() < 4:
+            agenda.pop(r)
+
+    roteiro = {
+        "data_de_chegada": dados['data_de_chegada'],
+        "data_de_saida": dados['data_de_saida'],
+        "numero_de_pessoas": dados['numero_de_pessoas'],
+        "reservas": agenda
+    }
+
+    return roteiro
