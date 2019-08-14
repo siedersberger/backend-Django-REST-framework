@@ -1,11 +1,11 @@
 # API de roteiros de viagem
 
-Em uma viagem, diversos tipos de passeios podem ser realizados. 
-Esta API tem objetivo de criar um roteiro de passeios para uma viagem, 
+Em uma viagem, diversos passeios podem ser realizados.  
+Neste contexto, esta API tem objetivo de criar um roteiro de passeios, 
 escalando e organizando os mesmos conforme a data e o número de pessoas
 participantes da viagem.
 
-Para possibilitar a persistencia dos dados, 
+Para possibilitar a persistência dos dados, 
 o seguinte modelo ER foi empregado:
 
 ![](imagens/ERD.png)
