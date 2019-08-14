@@ -2,6 +2,11 @@
 __pycache__/
 README.md
 
+# Tests
+htmlcov/
+.coverage
+
+
 # Django stuff
 *.log
 local_settings.py

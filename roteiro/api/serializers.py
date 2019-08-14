@@ -1,7 +1,5 @@
 from rest_framework.serializers import ModelSerializer
 from roteiro.models import Roteiro, Reserva
-from passeios.models import Passeio, Localizacao
-from passeios.api.serializers import PasseioSerializer
 
 
 class ReservaSerializer(ModelSerializer):
