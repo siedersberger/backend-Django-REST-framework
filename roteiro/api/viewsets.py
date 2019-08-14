@@ -1,5 +1,6 @@
 import datetime
 
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from .serializers import RoteiroSerializer
@@ -25,13 +26,13 @@ class RoteiroViewSet(ModelViewSet):
         roteiro = formata_agenda(agenda.copy(), dados)
 
         serializer = self.serializer_class(data=roteiro)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
 
-        saida = serializer.data
-        saida['reservas'] = agenda
-
-        return Response(saida)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            saida = serializer.data
+            saida['reservas'] = agenda
+            return Response(saida, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get_horarios_disponiveis(self, dados):
 

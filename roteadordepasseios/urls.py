@@ -5,7 +5,7 @@ from roteiro.api.viewsets import RoteiroViewSet
 from passeios.api.viewsets import PasseioViewSet
 
 router = routers.DefaultRouter()
-router.register(r'roteiros', RoteiroViewSet)
+router.register(r'roteiros', RoteiroViewSet, base_name='roteiros')
 router.register(r'passeios', PasseioViewSet, base_name='Passeio')
 
 urlpatterns = [

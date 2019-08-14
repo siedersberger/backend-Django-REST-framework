@@ -1,6 +1,6 @@
 from datetime import datetime
 from django.test import TestCase
-from .models import  Reserva, Roteiro
+from ..models import Reserva, Roteiro
 from passeios.models import Passeio, Disponibilidade, Localizacao
 
 
